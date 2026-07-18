@@ -1,0 +1,549 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PolicyTrace RC2 — Hospital-Wide Policy Generator</title>
+<style>
+  :root{
+    --bg:#f5f7fa;--card:#fff;--ink:#16202a;--muted:#66717f;
+    --brand:#164f86;--brand2:#0d6fd3;--line:#dce3ea;--soft:#edf5fc;
+    --ok:#2f7d32;--warn:#9a6700;--danger:#a33a3a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink)}
+  header{background:linear-gradient(135deg,var(--brand),#0f3558);color:#fff;padding:20px 24px}
+  header h1{margin:0 0 4px;font-size:24px}
+  header p{margin:0;opacity:.9}
+  main{max-width:1200px;margin:0 auto;padding:20px}
+  .grid{display:grid;grid-template-columns:370px 1fr;gap:18px}
+  @media(max-width:920px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+  h2,h3{margin-top:0}
+  label{display:block;font-weight:700;margin:12px 0 6px}
+  input,select,textarea{width:100%;padding:10px;border:1px solid #bfc9d4;border-radius:8px;font:inherit}
+  textarea{min-height:88px;resize:vertical}
+  button{border:0;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+  .primary{background:var(--brand2);color:#fff}
+  .secondary{background:#e9eef4;color:#203040}
+  .danger{background:#f7e9e9;color:var(--danger)}
+  .success{background:#eaf5ea;color:var(--ok)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+  .notice{background:#fff9e7;border-left:4px solid #d6a11b;padding:12px;border-radius:8px;font-size:14px}
+  .status{font-size:13px;color:var(--muted);margin-top:8px}
+  #policyOutput{white-space:pre-wrap;line-height:1.5;min-height:300px}
+  .rec{border:1px solid var(--line);border-radius:10px;padding:14px;margin:12px 0}
+  .rec h4{margin:0 0 8px}
+  .meta{font-size:13px;color:var(--muted);margin:6px 0}
+  .rec-actions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+  .empty{color:var(--muted);padding:28px 0;text-align:center}
+  .pill{display:inline-block;background:var(--soft);color:var(--brand);padding:3px 8px;border-radius:999px;font-size:12px;margin-right:4px}
+  .topline{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+  .small{font-size:12px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <h1>PolicyTrace RC2</h1>
+  <p>Hospital-wide policy generation with explainable governance recommendations</p>
+</header>
+
+<main>
+<div class="grid">
+<section class="card">
+  <h2>Create Policy</h2>
+
+  <label for="domain">Hospital policy area</label>
+  <select id="domain">
+    <option value="auto">Auto-detect from topic</option>
+    <option value="nursing">Nursing and Patient Care</option>
+    <option value="medical">Medical Staff and Clinical Operations</option>
+    <option value="pharmacy">Pharmacy and Medication Management</option>
+    <option value="infection">Infection Prevention and Control</option>
+    <option value="quality">Quality and Patient Safety</option>
+    <option value="emergency">Emergency Management</option>
+    <option value="risk">Risk, Compliance, and Ethics</option>
+    <option value="hr">Human Resources and Workforce</option>
+    <option value="facilities">Facilities, Security, and Environment of Care</option>
+    <option value="him">Health Information Management and Privacy</option>
+    <option value="diagnostic">Laboratory, Radiology, and Diagnostic Services</option>
+    <option value="rehab">Rehabilitation Services</option>
+    <option value="rights">Patient Rights, Grievances, Accessibility, and Equity</option>
+    <option value="behavioral">Behavioral Health</option>
+  </select>
+
+  <label for="topic">Policy topic</label>
+  <input id="topic" placeholder="e.g., Medication Reconciliation, Infection Control, Patient Grievances" />
+
+  <label for="setting">Organization / care setting</label>
+  <select id="setting">
+    <option>Acute care hospital</option>
+    <option>Behavioral health hospital</option>
+    <option>Rehabilitation hospital</option>
+    <option>Outpatient clinic</option>
+    <option>Long-term care facility</option>
+    <option>Public hospital system</option>
+    <option>Specialty hospital</option>
+  </select>
+
+  <label for="population">Population or scope</label>
+  <input id="population" placeholder="e.g., all adult inpatients, all licensed staff, all medication orders" />
+
+  <label for="purpose">Primary goal</label>
+  <textarea id="purpose" placeholder="Describe what the policy should accomplish."></textarea>
+
+  <label for="owner">Policy owner</label>
+  <input id="owner" placeholder="e.g., Chief Nursing Officer, Pharmacy Director, Compliance Officer" />
+
+  <label for="extra">Additional requirements</label>
+  <textarea id="extra" placeholder="e.g., include training, escalation, accessibility, documentation, auditing, reporting"></textarea>
+
+  <div class="toolbar">
+    <button class="primary" onclick="generatePolicy()">Generate Policy</button>
+    <button class="secondary" onclick="loadExample()">Load Example</button>
+    <button class="secondary" onclick="clearAll()">Clear</button>
+  </div>
+
+  <p id="generationStatus" class="status">Enter a topic and select Generate Policy.</p>
+
+  <div class="notice" style="margin-top:16px">
+    <strong>Decision-support notice:</strong> PolicyTrace supports, but does not replace, clinical judgment, legal review, compliance review, accreditation interpretation, or organizational approval. Outputs are under validation and do not imply Joint Commission, CMS, or regulatory endorsement.
+  </div>
+</section>
+
+<section>
+  <div class="card">
+    <div class="topline">
+      <h2 style="margin:0">Generated Policy Draft</h2>
+      <div class="toolbar" style="margin:0">
+        <button class="secondary" onclick="copyPolicy()">Copy</button>
+        <button class="secondary" onclick="downloadPolicy()">Download .txt</button>
+      </div>
+    </div>
+    <div id="policyOutput" class="empty">No policy generated yet.</div>
+  </div>
+
+  <div class="card">
+    <div class="topline">
+      <h2 style="margin:0">Governance Recommendations</h2>
+      <span id="recCount" class="small"></span>
+    </div>
+    <div id="recommendations" class="empty">Generate a policy to create recommendations.</div>
+  </div>
+</section>
+</div>
+</main>
+
+<script>
+let currentPolicy = "";
+let recs = [];
+
+const domains = {
+  nursing: {
+    name:"Nursing and Patient Care",
+    purpose:"establish a safe, standardized, accountable, and patient-centered nursing care process",
+    sections:[
+      ["Assessment and Care Planning","Define required assessments, care-planning expectations, reassessment triggers, and communication of changes in condition."],
+      ["Clinical Procedures","Describe the required nursing workflow, decision points, escalation pathways, and patient-specific adaptations."],
+      ["Staffing and Competency","Identify staffing expectations, role limitations, delegation rules, competency requirements, and supervision."],
+      ["Patient Education","Specify education, teach-back, interpreter access, health-literacy considerations, and documentation."],
+      ["Escalation and Medical Notification","Define thresholds and timelines for notifying providers, rapid response, leadership, or other services."],
+      ["Documentation","Specify required nursing records, timing, responsible staff, and correction of incomplete documentation."],
+      ["Quality Monitoring","Track adherence, outcomes, safety events, delays, disparities, and corrective actions."]
+    ]
+  },
+  medical: {
+    name:"Medical Staff and Clinical Operations",
+    purpose:"establish consistent medical staff responsibilities, clinical decision pathways, and accountable oversight",
+    sections:[
+      ["Medical Staff Responsibilities","Define physician, advanced practice, and consulting service duties, coverage, and escalation expectations."],
+      ["Clinical Evaluation and Orders","Describe assessment, diagnosis, orders, treatment planning, reassessment, and handoff requirements."],
+      ["Consultation and Referral","Define criteria, urgency, response expectations, documentation, and unresolved consultation concerns."],
+      ["Credentialing and Scope","Link responsibilities to credentialing, privileging, supervision, and scope-of-practice limits."],
+      ["Transitions of Care","Specify handoff, transfer, discharge, medication, follow-up, and unresolved-risk communication."],
+      ["Documentation","Define required clinical rationale, orders, consent, communication, and follow-up documentation."],
+      ["Performance Review","Identify peer review, quality indicators, event review, and corrective-action processes."]
+    ]
+  },
+  pharmacy: {
+    name:"Pharmacy and Medication Management",
+    purpose:"promote safe, lawful, effective, and traceable medication-use processes",
+    sections:[
+      ["Medication Selection and Formulary","Define formulary governance, restrictions, substitutions, shortages, and exception processes."],
+      ["Ordering and Verification","Specify authorized prescribers, required order elements, pharmacist verification, and escalation of concerns."],
+      ["Preparation and Dispensing","Describe compounding, labeling, storage, dispensing, delivery, and chain-of-custody controls."],
+      ["Administration","Define patient identification, medication rights, timing, monitoring, omissions, and independent double-checks where indicated."],
+      ["Medication Reconciliation","Specify reconciliation at admission, transfer, and discharge, including discrepancy resolution."],
+      ["High-Alert and Controlled Medications","Define enhanced safeguards, access controls, wasting, diversion prevention, and monitoring."],
+      ["Adverse Events and Quality","Require reporting, review, trend analysis, corrective action, and education."]
+    ]
+  },
+  infection: {
+    name:"Infection Prevention and Control",
+    purpose:"reduce transmission risk and standardize infection-prevention practices across the organization",
+    sections:[
+      ["Standard Precautions","Define hand hygiene, personal protective equipment, respiratory hygiene, and safe injection practices."],
+      ["Transmission-Based Precautions","Specify indications, placement, signage, PPE, discontinuation, and communication."],
+      ["Environmental Cleaning","Define responsibilities, products, frequency, terminal cleaning, and high-touch surfaces."],
+      ["Occupational Exposure","Describe immediate response, reporting, evaluation, prophylaxis, and follow-up."],
+      ["Surveillance and Reporting","Specify internal surveillance, outbreak thresholds, public-health reporting, and data review."],
+      ["Education and Competency","Require role-specific training and observation of practice."],
+      ["Quality Improvement","Track compliance, healthcare-associated infections, outbreaks, disparities, and corrective actions."]
+    ]
+  },
+  quality: {
+    name:"Quality and Patient Safety",
+    purpose:"support systematic identification, analysis, reduction, and monitoring of patient-safety and quality risks",
+    sections:[
+      ["Event Identification and Reporting","Define reportable events, near misses, unsafe conditions, and reporting pathways."],
+      ["Immediate Response","Describe patient care, disclosure, preservation of evidence, leadership notification, and stabilization."],
+      ["Review Methodology","Specify triage, case review, root-cause analysis, apparent-cause analysis, and escalation criteria."],
+      ["Corrective Action","Define action ownership, due dates, sustainability checks, and executive oversight."],
+      ["Just Culture and Workforce Protections","Clarify fair accountability, nonretaliation, and distinction between human error, at-risk behavior, and reckless behavior."],
+      ["Data and Reporting","Describe dashboards, trend analysis, committee reporting, and confidentiality."],
+      ["Learning System","Require feedback to staff, policy revision, education, and measurement of improvement."]
+    ]
+  },
+  emergency: {
+    name:"Emergency Management",
+    purpose:"ensure coordinated preparedness, response, continuity, and recovery during emergencies",
+    sections:[
+      ["Hazard Assessment","Identify anticipated hazards, vulnerabilities, critical functions, and mitigation priorities."],
+      ["Incident Command","Define activation authority, command structure, communication, and operational roles."],
+      ["Continuity of Operations","Address staffing, utilities, supplies, technology, patient care, and alternate sites."],
+      ["Communication","Specify internal, public, family, partner, and regulatory communication pathways."],
+      ["Resource Management","Define inventory, allocation, emergency procurement, and scarcity escalation."],
+      ["Training and Exercises","Require drills, exercise evaluation, after-action review, and corrective actions."],
+      ["Recovery","Describe demobilization, staff support, restoration, documentation, and improvement planning."]
+    ]
+  },
+  risk: {
+    name:"Risk, Compliance, and Ethics",
+    purpose:"provide a structured process for identifying, escalating, reviewing, and resolving legal, ethical, and compliance concerns",
+    sections:[
+      ["Issue Identification","Define reportable legal, ethical, compliance, privacy, and risk concerns."],
+      ["Consultation and Escalation","Specify access to compliance, legal, ethics, leadership, and emergency escalation."],
+      ["Review and Analysis","Describe fact gathering, confidentiality, conflict-of-interest review, and applicable decision frameworks."],
+      ["Resolution","Define recommendations, accountable decision-makers, documentation, and communication."],
+      ["Nonretaliation","State protections for good-faith reporting and prohibited retaliation."],
+      ["Monitoring","Track recurring risks, corrective actions, education needs, and unresolved issues."],
+      ["Records and Confidentiality","Define secure handling, retention, privilege considerations, and access controls."]
+    ]
+  },
+  hr: {
+    name:"Human Resources and Workforce",
+    purpose:"establish fair, consistent, lawful, and operationally reliable workforce practices",
+    sections:[
+      ["Eligibility and Scope","Define covered employees, roles, departments, and exceptions."],
+      ["Responsibilities","Specify employee, supervisor, human-resources, occupational-health, and leadership duties."],
+      ["Process","Describe the required workflow, timelines, documentation, and decision authority."],
+      ["Accommodation and Accessibility","Address disability, religious, language, pregnancy, and other applicable accommodation pathways."],
+      ["Confidentiality","Define privacy, need-to-know access, and records handling."],
+      ["Appeal or Review","Specify grievance, reconsideration, appeal, or conflict-resolution pathways."],
+      ["Monitoring and Training","Track implementation, disparities, timeliness, complaints, and manager competency."]
+    ]
+  },
+  facilities: {
+    name:"Facilities, Security, and Environment of Care",
+    purpose:"maintain a safe, secure, accessible, and reliable physical environment",
+    sections:[
+      ["Environmental Risk Assessment","Identify physical, security, utility, accessibility, and life-safety risks."],
+      ["Preventive Controls","Define inspections, maintenance, access controls, alarms, barriers, and environmental safeguards."],
+      ["Response Procedures","Describe emergency notification, incident response, evacuation, lockdown, or repair pathways."],
+      ["Security Roles","Clarify security, clinical, facilities, leadership, and law-enforcement coordination."],
+      ["Accessibility","Address physical access, evacuation assistance, signage, communication, and disability needs."],
+      ["Documentation","Require inspection records, work orders, incident reports, and corrective-action tracking."],
+      ["Quality Monitoring","Track failures, response times, injuries, security events, outages, and unresolved risks."]
+    ]
+  },
+  him: {
+    name:"Health Information Management and Privacy",
+    purpose:"govern accurate, secure, lawful, and timely creation, access, use, disclosure, and retention of health information",
+    sections:[
+      ["Record Creation and Integrity","Define authorship, timeliness, corrections, late entries, and authentication."],
+      ["Access and Minimum Necessary Use","Specify role-based access, need-to-know standards, and emergency access."],
+      ["Disclosure and Authorization","Describe permitted disclosures, authorizations, verification, and sensitive information."],
+      ["Patient Access and Amendment","Define request, review, denial, amendment, and response timelines."],
+      ["Security and Breach Response","Describe incident reporting, containment, investigation, notification, and remediation."],
+      ["Retention and Destruction","Specify retention periods, legal holds, secure disposal, and system migration."],
+      ["Auditing and Training","Require access audits, privacy education, sanctions, and corrective action."]
+    ]
+  },
+  diagnostic: {
+    name:"Laboratory, Radiology, and Diagnostic Services",
+    purpose:"standardize safe, accurate, timely, and clinically appropriate diagnostic testing and reporting",
+    sections:[
+      ["Ordering and Appropriateness","Define authorized ordering, required clinical information, and escalation of incomplete or inappropriate requests."],
+      ["Patient Identification and Preparation","Specify two-identifier verification, consent, preparation, and accommodation needs."],
+      ["Specimen or Image Acquisition","Describe collection, labeling, technique, chain of custody, quality controls, and repeat criteria."],
+      ["Critical Results","Define critical-value thresholds, communication, read-back, escalation, and documentation."],
+      ["Interpretation and Reporting","Specify reviewer qualifications, turnaround, amendments, and communication of uncertainty."],
+      ["Safety","Address radiation, contrast, exposure, infection, transport, and emergency response."],
+      ["Quality Assurance","Track errors, delays, repeats, critical-result communication, equipment, and competency."]
+    ]
+  },
+  rehab: {
+    name:"Rehabilitation Services",
+    purpose:"provide coordinated, goal-directed, safe, accessible, and patient-centered rehabilitation services",
+    sections:[
+      ["Evaluation","Define discipline-specific evaluation, functional assessment, goals, and contraindications."],
+      ["Plan of Care","Specify interdisciplinary goals, frequency, duration, progress measures, and revision triggers."],
+      ["Intervention","Describe treatment standards, safety precautions, equipment, and patient participation."],
+      ["Interdisciplinary Coordination","Define communication with medical, nursing, behavioral, case-management, and family supports."],
+      ["Accessibility and Equipment","Address mobility, communication, adaptive equipment, maintenance, and environmental access."],
+      ["Discharge and Transition","Specify education, equipment, caregiver training, referrals, and follow-up."],
+      ["Outcomes and Quality","Track functional gains, falls, missed visits, patient goals, disparities, and equipment issues."]
+    ]
+  },
+  rights: {
+    name:"Patient Rights, Grievances, Accessibility, and Equity",
+    purpose:"protect patient rights and ensure equitable, accessible, respectful, and responsive care",
+    sections:[
+      ["Rights and Notice","Define rights, responsibilities, notice methods, language access, and accessible formats."],
+      ["Grievances and Complaints","Describe intake, acknowledgment, investigation, response timelines, appeal, and nonretaliation."],
+      ["Accessibility and Accommodation","Specify disability access, effective communication, mobility support, service animals, and modification requests."],
+      ["Language Access","Define interpreter use, translated materials, prohibited reliance, and documentation."],
+      ["Equity and Nondiscrimination","State nondiscrimination protections and monitoring for disparities or barriers."],
+      ["Consent and Participation","Define informed participation, surrogate involvement, capacity concerns, and refusal."],
+      ["Oversight and Improvement","Track grievances, access barriers, disparities, timeliness, remedies, and policy changes."]
+    ]
+  },
+  behavioral: {
+    name:"Behavioral Health",
+    purpose:"provide safe, trauma-informed, least-restrictive, and clinically appropriate behavioral health care",
+    sections:[
+      ["Assessment and Formulation","Define behavioral-health evaluation, risk assessment, diagnosis, formulation, and reassessment."],
+      ["Treatment Planning","Specify individualized, interdisciplinary, recovery-oriented, and culturally responsive care planning."],
+      ["Crisis Response","Describe de-escalation, emergency activation, clinical leadership, and least-restrictive response."],
+      ["Suicide and Violence Risk","Define screening, comprehensive assessment, safety planning, monitoring, and escalation."],
+      ["Restraint and Seclusion","Specify indications, prohibitions, monitoring, discontinuation, documentation, and review."],
+      ["Transitions and Follow-up","Address handoff, discharge, medication, community linkage, and unresolved risk."],
+      ["Quality Improvement","Track access, outcomes, restrictive interventions, disparities, safety events, and patient experience."]
+    ]
+  }
+};
+
+function detectDomain(topic){
+  const t = topic.toLowerCase();
+  if(/medication|pharmacy|drug|controlled substance|reconciliation/.test(t)) return "pharmacy";
+  if(/infection|isolation|ppe|hand hygiene|outbreak/.test(t)) return "infection";
+  if(/grievance|patient rights|interpreter|accessibility|ada|equity|nondiscrimination/.test(t)) return "rights";
+  if(/privacy|hipaa|medical record|health information|breach/.test(t)) return "him";
+  if(/emergency management|disaster|continuity|incident command|evacuation/.test(t)) return "emergency";
+  if(/laboratory|radiology|imaging|critical result|specimen/.test(t)) return "diagnostic";
+  if(/rehab|therapy|physical therapy|occupational therapy|speech therapy/.test(t)) return "rehab";
+  if(/security|facility|environment of care|utility|lockdown/.test(t)) return "facilities";
+  if(/employee|workforce|leave|attendance|accommodation|human resources/.test(t)) return "hr";
+  if(/quality|patient safety|incident report|root cause|near miss/.test(t)) return "quality";
+  if(/ethics|compliance|conflict of interest|risk management/.test(t)) return "risk";
+  if(/suicide|behavioral|restraint|seclusion|psychiatric|mental health|code grey|code gray/.test(t)) return "behavioral";
+  if(/nursing|fall|wound|pressure injury|care plan|vital signs/.test(t)) return "nursing";
+  return "medical";
+}
+
+function generatePolicy(){
+  const topic = document.getElementById("topic").value.trim();
+  if(!topic){ alert("Please enter a policy topic."); return; }
+
+  const selected = document.getElementById("domain").value;
+  const domainKey = selected === "auto" ? detectDomain(topic) : selected;
+  const d = domains[domainKey];
+  const setting = document.getElementById("setting").value;
+  const population = document.getElementById("population").value.trim() || "all applicable patients, staff, departments, and care areas";
+  const customPurpose = document.getElementById("purpose").value.trim();
+  const owner = document.getElementById("owner").value.trim() || "Designated executive and operational policy owners";
+  const extra = document.getElementById("extra").value.trim();
+
+  let text = "";
+  text += topic.toUpperCase() + "\n\n";
+  text += "Policy Area: " + d.name + "\n";
+  text += "Policy Status: Draft — Under Validation\n";
+  text += "Care Setting: " + setting + "\n";
+  text += "Policy Owner: " + owner + "\n";
+  text += "Review Cycle: At least annually and sooner when laws, standards, evidence, operations, or identified risks change\n\n";
+
+  text += "1. PURPOSE\n";
+  text += (customPurpose || ("To " + d.purpose + " within the " + setting.toLowerCase() + ".")) + "\n\n";
+
+  text += "2. POLICY STATEMENT\n";
+  text += "The organization will implement this policy through qualified professional judgment, defined accountability, evidence-informed practice, transparent documentation, equitable implementation, and continuous quality improvement. Staff will use the safest, most appropriate, and least restrictive approach available under the circumstances.\n\n";
+
+  text += "3. SCOPE\n";
+  text += "This policy applies to " + population + ". Department-specific procedures may supplement this policy but may not reduce its core safety, governance, documentation, accessibility, or accountability requirements.\n\n";
+
+  text += "4. RESPONSIBILITIES\n";
+  text += "- Executive Policy Owner: provides governance oversight, resources, and final organizational accountability.\n";
+  text += "- Operational Owner: maintains procedures, implementation support, training, and monitoring.\n";
+  text += "- Clinical or Technical Leaders: provide subject-matter interpretation, consultation, and review of complex cases.\n";
+  text += "- Staff: follow the policy, document actions, escalate concerns, and report barriers or safety events.\n";
+  text += "- Quality/Compliance/Legal: review applicable requirements and support monitoring, interpretation, and revision.\n\n";
+
+  let n = 5;
+  d.sections.forEach(([heading, body])=>{
+    text += n + ". " + heading.toUpperCase() + "\n";
+    text += body + "\n\n";
+    n++;
+  });
+
+  if(extra){
+    text += n + ". ADDITIONAL ORGANIZATIONAL REQUIREMENTS\n";
+    text += extra + "\n\n";
+    n++;
+  }
+
+  text += n + ". EXCEPTIONS AND ESCALATION\n";
+  text += "When the policy cannot be followed exactly because of an emergency, conflicting clinical needs, patient-specific factors, resource limitations, or other material circumstances, staff must take the safest reasonable action, obtain appropriate consultation, document the rationale, and escalate unresolved concerns through the designated chain of command.\n\n";
+  n++;
+
+  text += n + ". POLICY REVIEW AND APPROVAL\n";
+  text += "This draft requires review and approval through the organization's established clinical, operational, compliance, legal, accreditation, and executive governance processes before implementation.\n\n";
+
+  text += "POLICYTRACE DECISION SUPPORT NOTICE\n";
+  text += "PolicyTrace provides structured, explainable governance recommendations to support policy development and review. It supports—but does not replace—clinical judgment, legal review, compliance review, regulatory interpretation, accreditation review, executive approval, or organizational governance. This output is under validation and does not imply Joint Commission, CMS, regulatory, legal, or organizational endorsement or guaranteed compliance.";
+
+  currentPolicy = text;
+  document.getElementById("policyOutput").className = "";
+  document.getElementById("policyOutput").textContent = text;
+  document.getElementById("generationStatus").textContent = "Policy generated successfully in the " + d.name + " domain.";
+  buildRecommendations(d, topic);
+}
+
+function buildRecommendations(domain, topic){
+  recs = [
+    {
+      title:"Confirm accountable executive and operational owners",
+      why:"The policy requires both authority and day-to-day implementation responsibility.",
+      matter:"Without clear ownership, accountability, escalation, maintenance, and corrective action can become fragmented.",
+      evidence:"Governance best practice",
+      confidence:"High",
+      wording:"Name a specific executive owner and operational owner in the approved policy."
+    },
+    {
+      title:"Verify current external requirements",
+      why:"The draft is generated from a governance framework rather than a live legal or accreditation determination.",
+      matter:"Laws, regulations, accreditation interpretations, and organizational obligations can change or differ by setting.",
+      evidence:"Regulatory and accreditation review",
+      confidence:"High",
+      wording:"Require final review by compliance, legal counsel, accreditation leadership, and other qualified reviewers."
+    },
+    {
+      title:"Define measurable implementation indicators",
+      why:"The draft includes quality language but does not yet contain organization-specific targets.",
+      matter:"A policy cannot be meaningfully validated without measures showing whether it is implemented and effective.",
+      evidence:"Quality improvement principle",
+      confidence:"High",
+      wording:"Add 3–5 measures, accountable owners, review frequency, thresholds, and corrective-action triggers."
+    },
+    {
+      title:"Test operational and clinical feasibility",
+      why:"The generated policy has not yet been tested against staffing, workflow, technology, training, and local resources.",
+      matter:"A theoretically sound policy may fail or create unintended risk if it cannot be executed reliably.",
+      evidence:"Clinical feasibility and human factors",
+      confidence:"High",
+      wording:"Complete structured review with frontline staff, subject-matter experts, operations, quality, accessibility, and affected patients where appropriate."
+    },
+    {
+      title:"Add domain-specific source verification",
+      why:"This policy belongs to " + domain.name + " and may depend on specialized standards, regulations, or professional guidance.",
+      matter:"Hospital-wide policy generation requires domain-specific authority mapping rather than one universal source set.",
+      evidence:"Knowledge-governance architecture",
+      confidence:"High",
+      wording:"Map the draft to the current authoritative sources applicable to " + domain.name + " before approval."
+    }
+  ];
+  renderRecommendations();
+}
+
+function renderRecommendations(){
+  const box = document.getElementById("recommendations");
+  box.innerHTML = "";
+  box.className = "";
+  document.getElementById("recCount").textContent = recs.length + " recommendations";
+
+  recs.forEach((r, i)=>{
+    const el = document.createElement("div");
+    el.className = "rec";
+    el.innerHTML = `
+      <h4>${i+1}. ${escapeHtml(r.title)}</h4>
+      <div class="meta">
+        <span class="pill">Confidence: ${escapeHtml(r.confidence)}</span>
+        <span class="pill">Status: Under Validation</span>
+      </div>
+      <p><strong>Why identified?</strong> ${escapeHtml(r.why)}</p>
+      <p><strong>Why it matters?</strong> ${escapeHtml(r.matter)}</p>
+      <p><strong>Evidence basis:</strong> ${escapeHtml(r.evidence)}</p>
+      <p><strong>Suggested wording:</strong> ${escapeHtml(r.wording)}</p>
+      <div class="rec-actions">
+        <button class="success" onclick="acceptRec(${i})">Accept</button>
+        <button class="secondary" onclick="modifyRec(${i})">Modify</button>
+        <button class="danger" onclick="rejectRec(${i})">Reject</button>
+        <button class="secondary" onclick="deferRec(${i})">Defer</button>
+      </div>
+      <div id="rec-status-${i}" class="status">Pending review</div>
+    `;
+    box.appendChild(el);
+  });
+}
+
+function acceptRec(i){
+  currentPolicy += "\n\nACCEPTED RECOMMENDATION\n" + recs[i].title + ": " + recs[i].wording;
+  document.getElementById("policyOutput").textContent = currentPolicy;
+  document.getElementById("rec-status-"+i).textContent = "Accepted and added to draft.";
+}
+function modifyRec(i){
+  const edited = prompt("Modify the suggested wording:", recs[i].wording);
+  if(edited !== null && edited.trim()){
+    recs[i].wording = edited.trim();
+    currentPolicy += "\n\nMODIFIED RECOMMENDATION\n" + recs[i].title + ": " + recs[i].wording;
+    document.getElementById("policyOutput").textContent = currentPolicy;
+    document.getElementById("rec-status-"+i).textContent = "Modified and added to draft.";
+  }
+}
+function rejectRec(i){
+  const reason = prompt("Reason for rejection:");
+  if(reason !== null) document.getElementById("rec-status-"+i).textContent = "Rejected" + (reason.trim()?": "+reason.trim():".");
+}
+function deferRec(i){
+  const reason = prompt("Reason for deferral or next step:");
+  if(reason !== null) document.getElementById("rec-status-"+i).textContent = "Deferred" + (reason.trim()?": "+reason.trim():".");
+}
+function loadExample(){
+  document.getElementById("domain").value = "pharmacy";
+  document.getElementById("topic").value = "Medication Reconciliation";
+  document.getElementById("setting").value = "Acute care hospital";
+  document.getElementById("population").value = "all adult inpatients at admission, transfer, and discharge";
+  document.getElementById("purpose").value = "Establish a reliable process for obtaining, verifying, reconciling, communicating, and documenting medication information across transitions of care.";
+  document.getElementById("owner").value = "Chief Medical Officer and Director of Pharmacy";
+  document.getElementById("extra").value = "Include pharmacist review, patient education, interpreter access, unresolved discrepancy escalation, and audit measures.";
+}
+function clearAll(){
+  ["topic","population","purpose","owner","extra"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("domain").value="auto";
+  currentPolicy=""; recs=[];
+  document.getElementById("policyOutput").className="empty";
+  document.getElementById("policyOutput").textContent="No policy generated yet.";
+  document.getElementById("recommendations").className="empty";
+  document.getElementById("recommendations").textContent="Generate a policy to create recommendations.";
+  document.getElementById("recCount").textContent="";
+  document.getElementById("generationStatus").textContent="Enter a topic and select Generate Policy.";
+}
+function copyPolicy(){
+  if(!currentPolicy){alert("Generate a policy first.");return;}
+  navigator.clipboard.writeText(currentPolicy).then(()=>alert("Policy copied."));
+}
+function downloadPolicy(){
+  if(!currentPolicy){alert("Generate a policy first.");return;}
+  const topic = document.getElementById("topic").value.trim().replace(/[^a-z0-9]+/gi,"_") || "Policy";
+  const blob = new Blob([currentPolicy], {type:"text/plain"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download=topic+"_PolicyTrace_Draft.txt"; a.click();
+  URL.revokeObjectURL(url);
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[m]));
+}
+</script>
+</body>
+</html>
