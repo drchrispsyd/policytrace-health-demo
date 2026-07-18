@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PolicyTrace RC2 - Validation Platform</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f6f8;margin:0}
+header{background:#123a63;color:white;padding:18px 24px}
+main{max-width:1100px;margin:auto;padding:20px}
+.card{background:white;border-radius:10px;padding:18px;margin:16px 0;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+button{padding:10px 16px;margin:4px;border-radius:6px;border:none;background:#1d6fd6;color:white;cursor:pointer}
+.secondary{background:#777}
+small{color:#666}
+details{margin-top:10px}
+textarea{width:100%;height:80px}
+.notice{background:#eef6ff;border-left:4px solid #1d6fd6;padding:12px}
+</style>
+<script>
+function accept(id){
+ document.getElementById(id+"_status").innerHTML="Status: Accepted ✓ (Integrated into draft)";
+}
+function reject(id){
+ let r=prompt("Reason for rejection?");
+ if(r!==null){document.getElementById(id+"_status").innerHTML="Status: Rejected — "+r;}
+}
+function modify(id){
+ let t=prompt("Edit recommendation wording:");
+ if(t!==null){document.getElementById(id+"_status").innerHTML="Status: Modified ✓";}
+}
+function defer(id){
+ let r=prompt("Reason for deferral:");
+ if(r!==null){document.getElementById(id+"_status").innerHTML="Status: Deferred — "+r;}
+}
+</script>
+</head>
+<body>
+<header>
+<h1>PolicyTrace RC2 Validation Platform</h1>
+<div>Visible Simplicity. Invisible Sophistication.</div>
+</header>
+<main>
+
+<div class="card">
+<h2>Home</h2>
+<button>Create Policy</button>
+<button class="secondary">Analyze Existing Policy</button>
+</div>
+
+<div class="card">
+<h2>Generated Policy Draft</h2>
+<p><b>Topic:</b> Suicide Prevention Policy</p>
+<p><b>Purpose</b> ...</p>
+<p><b>Scope</b> ...</p>
+<p><b>Responsibilities</b> ...</p>
+<p><b>Risk Assessment</b> ...</p>
+<p><b>Documentation</b> ...</p>
+</div>
+
+<div class="card">
+<h2>Recommendation #1</h2>
+<b>Add Executive Policy Owner</b>
+<p><b>Why identified?</b> No accountable executive owner detected.</p>
+<p><b>Why it matters?</b> Improves governance, accountability and review cycles.</p>
+<p><b>Evidence Basis:</b> Governance best practice</p>
+<p><b>Confidence:</b> High</p>
+<p><b>Validation Status:</b> Under Validation</p>
+<details>
+<summary>Explain More</summary>
+<p>Clinical rationale, governance rationale, operational considerations, suggested wording, implementation effort.</p>
+</details>
+<button onclick="accept('r1')">Accept</button>
+<button onclick="modify('r1')">Modify</button>
+<button onclick="reject('r1')">Reject</button>
+<button class="secondary" onclick="defer('r1')">Defer</button>
+<div id="r1_status"><small>Status: Pending</small></div>
+</div>
+
+<div class="card notice">
+<h3>PolicyTrace Decision Support Notice</h3>
+<p>PolicyTrace provides structured, explainable governance recommendations to support healthcare policy development. It supports—but does not replace—clinical judgment, legal review, compliance review, regulatory interpretation, accreditation review, executive approval, or organizational governance. Recommendations may strengthen alignment with applicable standards but do not imply regulatory approval, accreditation endorsement, or guaranteed compliance.</p>
+</div>
+
+<div class="card">
+<h2>Validation Dashboard</h2>
+<ul>
+<li>Accepted</li>
+<li>Modified</li>
+<li>Rejected</li>
+<li>Deferred</li>
+<li>Recommendation confidence</li>
+<li>Evidence basis</li>
+<li>Validation status</li>
+</ul>
+</div>
+
+</main>
+</body>
+</html>
