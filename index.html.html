@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>PolicyTrace 3.0 Foundation</title>
+<style>
+:root{--bg:#f4f7fb;--card:#fff;--ink:#172033;--muted:#5c667a;--line:#dce3ee;--brand:#1d4ed8;--brand2:#163ca8;--ok:#0f766e;--warn:#92400e;--danger:#b42318;--shadow:0 10px 30px rgba(20,33,61,.08);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif}
+*{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:linear-gradient(135deg,#122b63,#1d4ed8);color:#fff;padding:26px 18px 24px}
+.wrap{max-width:1050px;margin:auto}.brand{font-size:1.7rem;font-weight:800;letter-spacing:-.02em}.tag{opacity:.9;margin-top:4px}.notice{margin-top:14px;background:rgba(255,255,255,.12);padding:10px 12px;border-radius:12px;font-size:.9rem}
+main{padding:18px}.grid{display:grid;grid-template-columns:1fr;gap:16px}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+h2{margin:0 0 12px;font-size:1.25rem} h3{margin:18px 0 8px;font-size:1.05rem}.small{font-size:.9rem;color:var(--muted)}
+label{display:block;font-weight:700;margin:12px 0 6px} select,input,textarea{width:100%;border:1px solid #bfc9d8;border-radius:11px;background:#fff;padding:12px;font:inherit;color:var(--ink)} textarea{min-height:220px;resize:vertical}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}button{appearance:none;border:0;border-radius:11px;padding:12px 15px;font:inherit;font-weight:750;cursor:pointer;touch-action:manipulation}.primary{background:var(--brand);color:#fff}.primary:active{background:var(--brand2)}.secondary{background:#e8eefb;color:#18346e}.ghost{background:#eef2f7;color:#344054}.success{background:#d7f4ec;color:#075e54}.decline{background:#f4e8e8;color:#8d2424}button:disabled{opacity:.55;cursor:not-allowed}
+.status{display:none;margin-top:12px;padding:11px 12px;border-radius:10px;font-weight:650}.status.show{display:block}.status.ok{background:#e7f7f2;color:#075e54}.status.error{background:#fff0ef;color:#9b1c1c}.status.info{background:#edf4ff;color:#173f91}
+.report{display:none}.report.show{display:block}.summary{background:#edf4ff;border-left:4px solid var(--brand);padding:14px;border-radius:9px}.strength{background:#ecfdf3;border-left:4px solid var(--ok);padding:13px;border-radius:9px;margin-top:10px}
+.rec{border:1px solid var(--line);border-radius:14px;padding:16px;margin-top:14px}.badge{display:inline-block;border-radius:999px;padding:4px 9px;font-size:.78rem;font-weight:800;background:#fff3d6;color:#7a4c00}.quote{background:#f7f8fa;border-left:4px solid #98a2b3;padding:12px;margin:8px 0;border-radius:8px;font-style:italic}.language{background:#f8fafc;padding:12px;border-radius:9px;border:1px solid #dce3ee;white-space:pre-wrap}
+.meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px}.meta div{background:#f7f9fc;border-radius:9px;padding:9px;font-size:.86rem}.meta b{display:block}.decision{margin-top:12px}.decision-note{font-weight:700;margin-top:8px}.draft{white-space:pre-wrap;background:#fbfcfe;border:1px solid var(--line);border-radius:11px;padding:14px;min-height:150px}.audit{margin:0;padding-left:20px}.footer-note{font-size:.82rem;color:var(--muted);margin-top:15px}
+@media(min-width:850px){.grid.two{grid-template-columns:1.05fr .95fr}.meta{grid-template-columns:repeat(4,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand">PolicyTrace</div><div class="tag">Transparent reasoning. Better governance. Human judgment.</div><div class="notice">Foundation build for mobile testing. PolicyTrace supports review and does not replace clinical, legal, regulatory, or accreditation judgment.</div></div></header>
+<main class="wrap">
+<div class="grid two">
+<section class="card">
+<h2>Review a Policy</h2>
+<label for="careSetting">Care setting</label>
+<select id="careSetting">
+<option value="">Select a care setting</option>
+<optgroup label="Hospital">
+<option>Hospital-Wide</option><option>Inpatient Medical</option><option>Inpatient Surgical</option><option>Intensive Care Unit</option><option>Emergency Department</option><option>Observation Unit</option><option>Behavioral Health Inpatient</option><option>Consultation-Liaison Psychiatry</option><option>Perioperative / Operating Room</option><option>Post-Anesthesia Care Unit</option><option>Labor and Delivery</option><option>Neonatal Intensive Care</option><option>Pediatrics</option><option>Inpatient Rehabilitation</option><option>Long-Term Acute Care</option><option>Skilled Nursing Unit</option>
+</optgroup>
+<optgroup label="Ambulatory">
+<option>Primary Care</option><option>Specialty Clinic</option><option>Behavioral Health Outpatient</option><option>Infusion Center</option><option>Dialysis</option><option>Urgent Care</option><option>Ambulatory Surgery Center</option>
+</optgroup>
+<optgroup label="Clinical and Support Services">
+<option>Pharmacy</option><option>Laboratory</option><option>Radiology</option><option>Respiratory Therapy</option><option>Rehabilitation Services</option><option>Nutrition</option><option>Environmental Services</option><option>Security</option><option>Facilities</option>
+</optgroup>
+<optgroup label="Administrative and System">
+<option>Human Resources</option><option>Quality and Patient Safety</option><option>Risk Management</option><option>Infection Prevention</option><option>Compliance</option><option>Information Technology</option><option>Health Information Management</option><option>Patient Experience</option><option>Case Management</option><option>Social Work</option><option>Emergency Management</option>
+</optgroup>
+</select>
+<label for="policyType">Policy type</label>
+<select id="policyType">
+<option value="">Select a policy type</option><option>Clinical Care</option><option>Behavioral Health</option><option>Medication Management</option><option>Patient Safety</option><option>Emergency Response</option><option>Documentation</option><option>Consent</option><option>Restraint / Seclusion</option><option>Suicide Prevention</option><option>Violence Prevention</option><option>Infection Prevention</option><option>Quality Improvement</option><option>Human Resources</option><option>Security</option><option>Information Technology</option><option>Privacy / HIPAA</option><option>Ethics</option><option>Regulatory Compliance</option><option>Administrative</option><option>Other</option>
+</select>
+<label for="policyTitle">Policy title</label><input id="policyTitle" placeholder="Example: Suicide Risk Assessment and Monitoring">
+<label for="policyText">Policy text</label><textarea id="policyText" placeholder="Paste policy text here"></textarea>
+<div class="actions"><button id="loadSample" class="secondary" type="button">Load sample</button><button id="reviewBtn" class="primary" type="button">Review policy</button><button id="clearBtn" class="ghost" type="button">Clear</button></div>
+<div id="status" class="status" role="status" aria-live="polite"></div>
+</section>
+<section class="card"><h2>Working Draft</h2><div class="small">The original policy is preserved. Accepted or modified language is added here.</div><div id="workingDraft" class="draft">No policy loaded.</div><h3>Audit trail</h3><ol id="auditTrail" class="audit"><li>No decisions recorded.</li></ol></section>
+</div>
+<section id="report" class="card report" style="margin-top:16px">
+<h2>Governance Review</h2><div id="executiveSummary" class="summary"></div><h3>Existing strengths</h3><div id="strengths"></div><h3>Recommendations</h3><div id="recommendations"></div>
+</section>
+<div class="footer-note">This foundation uses a transparent rules-based demonstration review. It is not yet connected to an external evidence service or AI model.</div>
+</main>
+<script>
+(function(){
+'use strict';
+var state={original:'',working:'',audit:[]};
+function el(id){return document.getElementById(id)}
+function setStatus(message,type){var s=el('status');s.textContent=message;s.className='status show '+(type||'info')}
+function clearStatus(){var s=el('status');s.textContent='';s.className='status'}
+function escapeHtml(v){return String(v).replace(/[&<>'"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]})}
+function now(){return new Date().toLocaleString()}
+function updateDraft(){el('workingDraft').textContent=state.working||'No policy loaded.'}
+function updateAudit(){var a=el('auditTrail');if(!state.audit.length){a.innerHTML='<li>No decisions recorded.</li>';return}a.innerHTML=state.audit.map(function(x){return '<li><b>'+escapeHtml(x.action)+'</b> — '+escapeHtml(x.title)+' <span class="small">('+escapeHtml(x.time)+')</span></li>'}).join('')}
+function loadSample(){el('careSetting').value='Behavioral Health Inpatient';el('policyType').value='Suicide Prevention';el('policyTitle').value='Suicide Risk Assessment and Monitoring';el('policyText').value='PURPOSE\nTo establish a process for identifying and responding to patients at risk for suicide.\n\nPOLICY\nPatients identified as being at risk shall receive an appropriate suicide risk assessment. Nursing staff will notify the treating clinician of significant concerns. The treatment team will develop a safety plan when clinically indicated.\n\nPROCEDURE\nStaff will document assessment findings in the medical record. Patients requiring enhanced observation will be monitored according to unit procedures.';state.original=el('policyText').value;state.working=state.original;state.audit=[];updateDraft();updateAudit();el('report').classList.remove('show');setStatus('Sample policy loaded. Tap “Review policy.”','ok')}
+function buildRecommendations(text,setting,type){var lower=text.toLowerCase();var out=[];
+if(!/(quarterly|monthly|audit|monitor compliance|performance measure|quality committee)/.test(lower))out.push({id:'monitoring',title:'Add a clear monitoring and oversight process',quote:'The submitted policy describes clinical actions but does not specify how the organization will monitor whether the policy is followed consistently.',current:'The policy tells staff what to do during patient care.',opportunity:'It does not clearly identify who will review performance, how often review will occur, or what happens when problems are found.',why:'A defined monitoring process makes responsibility clear and helps the organization identify variation, correct problems, and show that the policy is being carried out over time.',language:'The responsible department shall review compliance with this policy at least quarterly. Findings, trends, and needed corrective actions shall be reported to the appropriate quality or governance committee and documented through completion.',impact:'High',ease:'Moderate',evidence:'Strong governance practice',effort:'Moderate'});
+if(!/(validated|standardized|structured assessment|organization-approved)/.test(lower)&&(type==='Suicide Prevention'||lower.indexOf('suicide')>=0||lower.indexOf('risk assessment')>=0))out.push({id:'assessment',title:'Clarify the expected assessment process',quote:'“Patients identified as being at risk shall receive an appropriate suicide risk assessment.”',current:'The policy requires an assessment when suicide risk is identified.',opportunity:'The term “appropriate” may be interpreted differently across clinicians and units. The policy can be clearer without requiring one specific instrument.',why:'Clearer wording supports consistent practice and documentation while allowing the organization to choose or update its preferred assessment process.',language:'Patients identified as being at risk for suicide shall receive a structured suicide risk assessment using an organization-approved, evidence-informed process. Findings shall be documented in the medical record and communicated to the interdisciplinary treatment team.',impact:'High',ease:'High',evidence:'Strong clinical consensus',effort:'Low'});
+if(!/(responsible|accountable|medical director|nurse manager|department head|policy owner)/.test(lower))out.push({id:'accountability',title:'Name the role responsible for policy oversight',quote:'The policy assigns tasks to staff but does not clearly name a policy owner.',current:'Clinical responsibilities are described across the treatment team.',opportunity:'A specific role is not identified as responsible for maintaining the policy, reviewing results, and coordinating updates.',why:'Naming an accountable role reduces confusion and helps ensure that review findings lead to action.',language:'The [designated policy owner or department leader] is responsible for implementation, periodic review, performance monitoring, and coordination of revisions to this policy.',impact:'Moderate',ease:'High',evidence:'Established governance practice',effort:'Low'});
+return out}
+function renderReview(){var setting=el('careSetting').value,type=el('policyType').value,title=el('policyTitle').value.trim(),text=el('policyText').value.trim();if(!setting){setStatus('Please select a care setting.','error');return}if(!type){setStatus('Please select a policy type.','error');return}if(!title){setStatus('Please enter a policy title.','error');return}if(text.length<80){setStatus('Please paste a policy with at least 80 characters, or load the sample.','error');return}
+var btn=el('reviewBtn');btn.disabled=true;btn.textContent='Reviewing…';setStatus('Review in progress…','info');
+window.setTimeout(function(){try{state.original=text;state.working=text;state.audit=[];updateDraft();updateAudit();var recs=buildRecommendations(text,setting,type);el('executiveSummary').innerHTML='<b>Overall assessment:</b> This '+escapeHtml(type.toLowerCase())+' policy for '+escapeHtml(setting)+' provides a usable starting framework. The review found clear clinical direction and identified '+recs.length+' opportunity'+(recs.length===1?'':'ies')+' to strengthen consistency, accountability, and ongoing oversight.';
+el('strengths').innerHTML='<div class="strength"><b>Clear purpose and clinical direction</b><br>The policy establishes a recognizable purpose and describes actions expected of staff. This gives the organization a practical foundation for implementation.</div><div class="strength"><b>Documentation is addressed</b><br>The policy states that findings should be documented, which supports communication and continuity of care.</div>';
+var container=el('recommendations');if(!recs.length){container.innerHTML='<div class="strength"><b>Why no recommendation was made</b><br>No significant improvement opportunity was identified in this demonstration review.</div>'}else{container.innerHTML=recs.map(function(r,i){return '<article class="rec" data-id="'+r.id+'"><span class="badge">Priority '+(i===0?'High':'Moderate')+'</span><h3>'+escapeHtml(r.title)+'</h3><b>Policy language reviewed</b><div class="quote">'+escapeHtml(r.quote)+'</div><b>What this section currently does</b><p>'+escapeHtml(r.current)+'</p><b>Opportunity to strengthen the policy</b><p>'+escapeHtml(r.opportunity)+'</p><b>Why this matters</b><p>'+escapeHtml(r.why)+'</p><b>Suggested policy language</b><div class="language" id="lang-'+r.id+'">'+escapeHtml(r.language)+'</div><div class="meta"><div><b>Expected impact</b>'+r.impact+'</div><div><b>Ease</b>'+r.ease+'</div><div><b>Support</b>'+r.evidence+'</div><div><b>Committee effort</b>'+r.effort+'</div></div><div class="actions decision"><button type="button" class="success decision-btn" data-action="accept" data-id="'+r.id+'">Accept</button><button type="button" class="secondary decision-btn" data-action="modify" data-id="'+r.id+'">Modify</button><button type="button" class="decline decision-btn" data-action="decline" data-id="'+r.id+'">Decline</button></div><div class="decision-note" id="note-'+r.id+'"></div></article>'}).join('')}
+el('report').classList.add('show');setStatus('Review complete. Scroll down to see the report.','ok');el('report').scrollIntoView({behavior:'smooth',block:'start'});}catch(err){setStatus('The review could not be completed: '+err.message,'error');console.error(err)}finally{btn.disabled=false;btn.textContent='Review policy'}},150)}
+function applyDecision(id,action){var langEl=el('lang-'+id),note=el('note-'+id);if(!langEl)return;var language=langEl.textContent;var title=langEl.closest('.rec').querySelector('h3').textContent;if(action==='modify'){var edited=window.prompt('Edit the suggested policy language before adding it to the working draft:',language);if(edited===null)return;if(!edited.trim()){setStatus('Modified language cannot be blank.','error');return}language=edited.trim();langEl.textContent=language;action='accept-modified'}if(action==='accept'||action==='accept-modified'){state.working=state.working.trim()+'\n\n--- PROPOSED REVISION ---\n'+language;note.textContent='✓ Recommendation incorporated into the working draft.';note.style.color='#075e54';state.audit.push({action:action==='accept'?'Accepted':'Modified and accepted',title:title,time:now()});updateDraft()}else if(action==='decline'){note.textContent='Recommendation declined. The working draft was not changed.';note.style.color='#8d2424';state.audit.push({action:'Declined',title:title,time:now()})}updateAudit();setStatus('Decision recorded.','ok')}
+function clearAll(){el('careSetting').value='';el('policyType').value='';el('policyTitle').value='';el('policyText').value='';state={original:'',working:'',audit:[]};updateDraft();updateAudit();el('report').classList.remove('show');clearStatus()}
+function init(){el('loadSample').addEventListener('click',loadSample);el('reviewBtn').addEventListener('click',renderReview);el('clearBtn').addEventListener('click',clearAll);el('recommendations').addEventListener('click',function(e){var b=e.target.closest('.decision-btn');if(b)applyDecision(b.getAttribute('data-id'),b.getAttribute('data-action'))});setStatus('Ready. Choose settings and paste a policy, or load the sample.','info')}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init)}else{init()}
+})();
+</script>
+</body>
+</html>
