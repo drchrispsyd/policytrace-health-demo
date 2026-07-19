@@ -78,7 +78,8 @@ document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>
 function switchTab(id){document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));document.querySelectorAll('.panel').forEach(x=>x.classList.toggle('active',x.id===id));}
 function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
 function normalize(s){return s.replace(/\s+/g,' ').trim()}
-function sentences(text){return text.replace(//g,' ').split(/(?<=[.!?])\s+|
+function sentences(text){return text.replace(/
+/g,' ').split(/(?<=[.!?])\s+|
 +/).map(normalize).filter(x=>x.length>25)}
 function bestQuote(sents, terms){let best=null,score=0;for(const s of sents){let n=0;const l=s.toLowerCase();terms.forEach(t=>{if(l.includes(t))n++});if(n>score){score=n;best=s}}return score?best:null}
 function absence(text, groups){const l=text.toLowerCase();return !groups.some(g=>g.every(t=>l.includes(t)))}
